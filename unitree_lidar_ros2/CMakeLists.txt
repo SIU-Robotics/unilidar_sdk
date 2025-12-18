@@ -22,6 +22,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(PCL REQUIRED)
 
+set(unitree_lidar_sdk_INCLUDE_DIRS ${unitree_lidar_sdk_DIR}/../../../include/unitree_lidar_sdk)
+set(unitree_lidar_sdk_LIBRARIES ${unitree_lidar_sdk_DIR}/../../../lib/libunitree_lidar_sdk.a)
+
 include_directories(
   ${PCL_INCLUDE_DIRS} 
   include
