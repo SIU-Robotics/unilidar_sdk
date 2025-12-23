@@ -21,40 +21,44 @@ find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(pcl_conversions REQUIRED)
 find_package(PCL REQUIRED)
-
-set(unitree_lidar_sdk_INCLUDE_DIRS ${unitree_lidar_sdk_DIR}/../../../include/unitree_lidar_sdk)
-set(unitree_lidar_sdk_LIBRARIES ${unitree_lidar_sdk_DIR}/../../../lib/libunitree_lidar_sdk.a)
+find_package(unitree_lidar_sdk REQUIRED)
 
 include_directories(
-  ${PCL_INCLUDE_DIRS} 
+  ${PCL_INCLUDE_DIRS}
   include
-  ../../../unitree_lidar_sdk/include
 )
 
 link_directories(
   ${PCL_LIBRARY_DIRS}
-  ../../../unitree_lidar_sdk/lib/${CMAKE_SYSTEM_PROCESSOR}
 )
 
 add_definitions(${PCL_DEFINITIONS})
 
+# Find the static library
+find_library(UNITREE_LIDAR_SDK_LIB
+  NAMES libunitree_lidar_sdk.a
+  HINTS ${unitree_lidar_sdk_DIR}/../../../lib
+)
+
 add_executable(unitree_lidar_ros2_node src/unitree_lidar_ros2_node.cpp)
 
-target_link_libraries( unitree_lidar_ros2_node
+target_link_libraries(unitree_lidar_ros2_node
   ${Boost_SYSTEM_LIBRARY}
   ${PCL_LIBRARIES}
-  libunitree_lidar_sdk.a
+  ${UNITREE_LIDAR_SDK_LIB}
 )
 
 ament_target_dependencies(
   unitree_lidar_ros2_node
-  rclcpp std_msgs 
+  rclcpp
+  std_msgs
   sensor_msgs
   pcl_conversions
+  unitree_lidar_sdk
 )
 
 install(TARGETS
-unitree_lidar_ros2_node
+  unitree_lidar_ros2_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
