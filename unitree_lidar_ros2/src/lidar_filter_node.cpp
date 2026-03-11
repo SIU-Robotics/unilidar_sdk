@@ -26,9 +26,9 @@ LidarFilterNode::LidarFilterNode(const rclcpp::NodeOptions &options)
   laser_scan_range_max_ = get_parameter("laser_scan_range_max").as_double();
 
   ArenaWall default_wall;
-  default_wall.x_min = -10.0;
+  default_wall.x_min = 0.0;
   default_wall.x_max = 10.0;
-  default_wall.y_min = -10.0;
+  default_wall.y_min = 0.0;
   default_wall.y_max = 10.0;
   arena_walls_.push_back(default_wall);
 
@@ -141,14 +141,20 @@ void LidarFilterNode::cloud_callback(const sensor_msgs::msg::PointCloud2::Shared
   }
 
   Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
-  Eigen::Matrix3f rotation = Eigen::Matrix3f::Identity();
-  rotation = Eigen::AngleAxisf(transform_stamped.transform.rotation.x, Eigen::Vector3f::UnitX()) *
-             Eigen::AngleAxisf(transform_stamped.transform.rotation.y, Eigen::Vector3f::UnitY()) *
-             Eigen::AngleAxisf(transform_stamped.transform.rotation.z, Eigen::Vector3f::UnitZ());
-  transform_matrix.block<3, 3>(0, 0) = rotation;
-  transform_matrix(0, 3) = transform_stamped.transform.translation.x;
-  transform_matrix(1, 3) = transform_stamped.transform.translation.y;
-  transform_matrix(2, 3) = transform_stamped.transform.translation.z;
+
+  Eigen::Quaternionf q(
+    transform_stamped.transform.rotation.w,
+    transform_stamped.transform.rotation.x,
+    transform_stamped.transform.rotation.y,
+    transform_stamped.transform.rotation.z
+  );
+
+  Eigen::Matrix3f rotation = q.toRotationMatrix();
+  transform_matrix.block<3,3>(0,0) = rotation;
+
+  transform_matrix(0,3) = transform_stamped.transform.translation.x;
+  transform_matrix(1,3) = transform_stamped.transform.translation.y;
+  transform_matrix(2,3) = transform_stamped.transform.translation.z;
 
   pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>());
   pcl::transformPointCloud(*cloud, *transformed_cloud, transform_matrix);

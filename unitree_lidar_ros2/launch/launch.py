@@ -35,6 +35,7 @@ def generate_launch_description():
               {'ground_height_min': -0.05},
               {'ground_height_max': 0.05},
               {'target_frame': 'map'},
+              # {'target_frame': 'unilidar_lidar'}, # For testing
               {'source_frame': 'unilidar_lidar'},
               {'laser_scan_min_angle': -3.14159},
               {'laser_scan_max_angle': 3.14159},
@@ -54,6 +55,6 @@ def generate_launch_description():
   #   arguments=['-d', rviz_config_file],
   #   output='log'
   # )
-  # return LaunchDescription([node1, rviz_node])
+  # return LaunchDescription([node1, node2, rviz_node])
 
-  return LaunchDescription([node1])
+  return LaunchDescription([node1, node2])
